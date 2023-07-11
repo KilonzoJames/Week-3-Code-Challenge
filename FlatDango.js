@@ -16,6 +16,10 @@ function movieCollectionFunction(films){
     const buttonElement = document.querySelector('.container button');
     const pElement = document.querySelector('p#description');
 
+    let remainingTickets = film.capacity -film.tickets_sold;
+    // let newRemainingTickets=remainingTickets-1;
+    let ticketsLeftElement = document.querySelector('span#One');
+
     liElement.addEventListener('click',() => {  
     imgElement.src = film.poster;
     h1Element.textContent=film.title.toUpperCase();
@@ -23,7 +27,9 @@ function movieCollectionFunction(films){
     runtimeElement.textContent=`${film.runtime} minutes.`;
     timespanElement.textContent=film.showtime;
     pElement.textContent = film.description;
+    ticketsLeftElement.textContent = `${(remainingTickets)} Only!`;
   });
+    
   
 
    
@@ -64,11 +70,6 @@ function updateTicketsSold(film){
   return fetch(`http://localhost:3000/films/${film.id}`,patchMethod)
   .then(res => res.json())
   .then(() => {
-    let remainingTickets = film.capacity -film.tickets_sold;
-    let newRemainingTickets=remainingTickets-1;
-    let ticketsLeftElement = document.querySelector('span#One');
-    ticketsLeftElement.textContent = `${(newRemainingTickets)} Only!`;
-    ticketsLeftElement.style.setProperty('color', 'red');
     if ((remainingTickets) === 0) {
       buttonElement.disabled = true; // Disable the button
       buttonElement.textContent = 'Sold Out'; // Update button text to "Sold Out"
