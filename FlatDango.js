@@ -9,43 +9,49 @@ function movieCollectionFunction(films){
 
     films.forEach((film, index) => {
     const liElement = document.getElementById(liIds[index]);  
-    liElement.addEventListener('click',() => {  
-    const h1Element = document.querySelector('.container h1');
-    const pElement = document.querySelector('p#description');
-    let ticketsLeftElement = document.querySelector('span#One')
-    const timespanElement = document.querySelector('span#Second')
-    const runtimeElement = document.querySelector('h3#runtime')
     const imgElement = document.querySelector('.container img');
+    const h1Element = document.querySelector('.container h1');
+    const runtimeElement = document.querySelector('h3#runtime');
+    const timespanElement = document.querySelector('span#Second');
     const buttonElement = document.querySelector('.container button');
-  
-    h1Element.textContent=(film.title).toUpperCase();
-    timespanElement.textContent=`${film.showtime}`;
-    ticketsLeftElement.textContent=`${film.capacity-film.tickets_sold} Only!`;
-    ticketsLeftElement.style.setProperty('color', 'red');
-    runtimeElement.textContent=`${film.runtime} minutes.`;
-    pElement.textContent = film.description;
-    imgElement.src = `${film.poster}`
+    const pElement = document.querySelector('p#description');
 
-    buttonElement.addEventListener('click', () => {updateTicketsSold(film)});
+    liElement.addEventListener('click',() => {  
+    imgElement.src = film.poster;
+    h1Element.textContent=film.title.toUpperCase();
+    let remainingTickets = film.capacity -film.tickets_sold;
+    runtimeElement.textContent=`${film.runtime} minutes.`;
+    timespanElement.textContent=film.showtime;
+    pElement.textContent = film.description;
+  });
+  
+
+   
+    buttonElement.addEventListener('click', () => {
+      // updateTicketsSold(film)
     });
-});
-}
+     if (index === 0) {
+      liElement.click(); // Trigger click on the first liElement
+    };
+  });
+    }
+
 // function showMovieByClicking(film){
 
 // }
 function fetchAndAppend(){
   return fetch(`http://localhost:3000/films`)
   .then(res=>res.json())
-  .then(data=> data   )
+  .then(film=> film   )
   .catch(error => {
   console.error('Error occurred while fetching data:', error);
   }); 
  }
     
 function updateTicketsSold(film){
-  const newTicketsSold = film.tickets_sold +=1;
+  const newTickets=film.tickets_sold+=1;
   const patchData = {
-  tickets_sold: newTicketsSold
+  tickets_sold: newTickets
   };
   const patchMethod = {
   method: 'PATCH',
@@ -55,20 +61,20 @@ function updateTicketsSold(film){
   },
   body: JSON.stringify(patchData)
   }
-  fetch(`http://localhost:3000/films/${film.id}`,patchMethod)
-    .then(res => res.json())
-    .then(data => {
-    ticketsLeftElement = document.querySelector('span#One')
-    if (film.tickets_sold < film.capacity) {
-    film.tickets_sold = newTicketsSold;
-    ticketsLeftElement.textContent = `${film.capacity-film.tickets_sold} Only!`;}
-    else if(film.tickets_sold === film.capacity ||film.capacity>= newTicketsSold) {
-      const buttonElement = document.querySelector('.container button');
-      buttonElement.disabled = true;  // Disable the button when sold out
-      ticketsLeftElement.textContent = 'Sold Out';
-    };   
-  })
+  return fetch(`http://localhost:3000/films/${film.id}`,patchMethod)
+  .then(res => res.json())
+  .then(() => {
+    let remainingTickets = film.capacity -film.tickets_sold;
+    let newRemainingTickets=remainingTickets-1;
+    let ticketsLeftElement = document.querySelector('span#One');
+    ticketsLeftElement.textContent = `${(newRemainingTickets)} Only!`;
+    ticketsLeftElement.style.setProperty('color', 'red');
+    if ((remainingTickets) === 0) {
+      buttonElement.disabled = true; // Disable the button
+      buttonElement.textContent = 'Sold Out'; // Update button text to "Sold Out"
+        }
+        })
   .catch(error => {
-    console.log('An error occurred while updating the toy:', error);
+    console.log('An error occurred while updating films:', error);
   });
 }
