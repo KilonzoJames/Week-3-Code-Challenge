@@ -15,10 +15,9 @@ function movieCollectionFunction(films){
     const timespanElement = document.querySelector('span#Second');
     const buttonElement = document.querySelector('.container button');
     const pElement = document.querySelector('p#description');
+    let ticketsLeftElement = document.getElementById('film.id');
 
-    let remainingTickets = film.capacity -film.tickets_sold;
-    // let newRemainingTickets=remainingTickets-1;
-    let ticketsLeftElement = document.querySelector('span#One');
+    
 
     liElement.addEventListener('click',() => {  
     imgElement.src = film.poster;
@@ -34,7 +33,17 @@ function movieCollectionFunction(films){
 
    
     buttonElement.addEventListener('click', () => {
-      // updateTicketsSold(film)
+      updateTicketsSold(film)
+      .then(() => {
+        let remainingTickets = film.capacity -film.tickets_sold;
+        let ticketsLeftElement = document.getElementById('film.id');
+        ticketsLeftElement.textContent=`${(remainingTickets)} Only!`;
+    
+        if ((remainingTickets) === 0) {
+          buttonElement.disabled = true; // Disable the button
+          buttonElement.textContent = 'Sold Out'; // Update button text to "Sold Out"
+            }
+            })
     });
      if (index === 0) {
       liElement.click(); // Trigger click on the first liElement
@@ -69,12 +78,6 @@ function updateTicketsSold(film){
   }
   return fetch(`http://localhost:3000/films/${film.id}`,patchMethod)
   .then(res => res.json())
-  .then(() => {
-    if ((remainingTickets) === 0) {
-      buttonElement.disabled = true; // Disable the button
-      buttonElement.textContent = 'Sold Out'; // Update button text to "Sold Out"
-        }
-        })
   .catch(error => {
     console.log('An error occurred while updating films:', error);
   });
